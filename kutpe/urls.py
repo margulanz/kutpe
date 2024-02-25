@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from users.views import CustomRegisterView, VerifyPhone, SendOTP, add_to_queue, process_current_pos
+from users.views import CustomRegisterView, VerifyPhone, SendOTP, add_to_queue, process_current_pos, GetNearestBanks, GetNearestBanksByLocation
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -12,5 +12,8 @@ urlpatterns = [
     path("add-to-queue/<int:queue_id>/<int:user_id>",
          add_to_queue, name='add_to_queue'),
     path("process-current-pos/<int:queue_id>",
-         process_current_pos, name='process_current_pos')
+         process_current_pos, name='process_current_pos'),
+    path("get-nearest-banks/", GetNearestBanks.as_view(), name='get_nearest_banks'),
+    path("get-nearest-banks-by-location/", GetNearestBanksByLocation.as_view(),
+         name='get_nearest_banks_by_location')
 ]

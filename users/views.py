@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from .utils import find_nearest_banks, find_nearest_banks_by_location
 from .models import Queue, Participant, User
 from .serializers import PhoneOTPSerializer
 # Create your views here.
@@ -91,3 +92,19 @@ def process_current_pos(request, queue_id):
         queue.participants.remove(participant)
         participant.delete()
         return Response(f"{participant} was processed and current queue pos is  {queue.current_pos}", status=status.HTTP_200_OK)
+
+
+class GetNearestBanks(APIView):
+    def post(self, request, **kwargs):
+
+        lat = request.data.get('lat')
+        lon = request.data.get('lon')
+        data = find_nearest_banks(f"{lat},{lon}")
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class GetNearestBanksByLocation(APIView):
+    def post(self, request, **kwargs):
+        location = request.data.get('location')
+        data = find_nearest_banks_by_location(location)
+        return Response(data, status=status.HTTP_200_OK)
