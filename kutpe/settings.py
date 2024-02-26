@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth',
-    'users'
+    'users',
+    'drf_yasg'
 ]
 AUTH_USER_MODEL = "users.User"
 MIDDLEWARE = [
@@ -88,7 +89,13 @@ DATABASES = {
     }
 }
 
-
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        }
+    }
+}
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
