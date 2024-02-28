@@ -1,7 +1,8 @@
 import random
 import string
-from django.conf import settings
 import requests
+import math
+from django.conf import settings
 
 
 def generate_otp(length=6):
@@ -84,3 +85,28 @@ def find_nearest_banks_by_location(location_str, radius=1500, amenity='bank'):
         return data
     else:
         print("Invalid location.")
+
+
+WeekDay_business = {
+    'Monday': [30, 10, 7],
+    'Tuesday': [30, 10, 7]
+}
+
+
+def calculate_time(num_servers, inter_arrival_time, max_service, min_service):
+    lambdaa = 1/inter_arrival_time
+    mean_service_time = (min_service + max_service)/2
+    mewing = 1/mean_service_time
+    variance_s = pow(max_service-min_service, 2)/12
+    p = lambdaa/(num_servers*mewing)
+    C_s = variance_s/pow(mean_service_time, 2)
+    sum = 0
+    for i in range(num_servers-1):
+        sum += pow(num_servers*p, i)/math.factorial(i)
+    sum += pow(num_servers*p, num_servers) / \
+        (math.factorial(num_servers)*(1 - p))
+    p_0 = 1/sum
+    L_q = p_0*pow(lambdaa/mewing, num_servers)*p / \
+        (math.factorial(num_servers)*pow(1-p, 2))
+    W_q = L_q/lambdaa
+    return (L_q, W_q)

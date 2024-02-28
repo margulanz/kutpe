@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from users.views import CustomRegisterView, VerifyPhone, SendOTP, add_to_queue, process_current_pos, GetNearestBanks, GetNearestBanksByLocation
+from users.views import CustomRegisterView, VerifyPhone, SendOTP, add_to_queue, process_current_pos, GetNearestBanks, GetNearestBanksByLocation, GetTime
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
@@ -35,4 +35,5 @@ urlpatterns = [
          cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc',
          cache_timeout=0), name='schema-redoc'),
+    path("get-time/", GetTime.as_view(), name='get_time')
 ]

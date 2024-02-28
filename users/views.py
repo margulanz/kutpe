@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .utils import find_nearest_banks, find_nearest_banks_by_location
+from .utils import find_nearest_banks, find_nearest_banks_by_location, calculate_time
 from .models import Queue, Participant, User
 from .serializers import PhoneOTPSerializer
 # Create your views here.
@@ -108,3 +108,14 @@ class GetNearestBanksByLocation(APIView):
         location = request.data.get('location')
         data = find_nearest_banks_by_location(location)
         return Response(data, status=status.HTTP_200_OK)
+
+
+class GetTime(APIView):
+    def post(self, request, **kwargs):
+        num_servers = request.data.get('num_servers')
+        inter_arrival_time = request.data.get('inter_arrival_time')
+        max_service = request.data.get('max_service')
+        min_service = request.data.get('min_service')
+        average_l, mean_t = calculate_time(
+            num_servers, inter_arrival_time, max_service, min_service)
+        return Response({"average_l": average_l, "mean_t": mean_t}, status=status.HTTP_200_OK)
