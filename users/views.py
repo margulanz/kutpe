@@ -69,7 +69,7 @@ def add_to_queue(request, queue_id, user_id):
     except:
         return Response(f"Something wrong with request", status=status.HTTP_400_BAD_REQUEST)
     participant = Participant.objects.create(
-        user=user, position=queue.count+1)
+        user=user, position=queue.count+1, waiting_time=calculate_time()[1])
     # check if empty
     if queue.count == 0:
         queue.current_pos = participant.position
@@ -113,9 +113,9 @@ class GetNearestBanksByLocation(APIView):
 class GetTime(APIView):
     def post(self, request, **kwargs):
         num_servers = request.data.get('num_servers')
-        inter_arrival_time = request.data.get('inter_arrival_time')
+        # inter_arrival_time = request.data.get('inter_arrival_time')
         max_service = request.data.get('max_service')
         min_service = request.data.get('min_service')
         average_l, mean_t = calculate_time(
-            num_servers, inter_arrival_time, max_service, min_service)
+            num_servers, max_service, min_service)
         return Response({"average_l": average_l, "mean_t": mean_t}, status=status.HTTP_200_OK)

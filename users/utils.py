@@ -2,7 +2,10 @@ import random
 import string
 import requests
 import math
+import joblib
+import numpy as np
 from django.conf import settings
+import datetime
 
 
 def generate_otp(length=6):
@@ -29,7 +32,7 @@ def send_sms_otp(phone_number, otp):
     # Make the API request
     # response = requests.post(api_url, data=payload)
     # print(response.json(), flush=True)
-    print(payload, flush=True)
+    # print(payload, flush=True)
 
 
 def get_location_coordinates(location_str):
@@ -93,8 +96,27 @@ WeekDay_business = {
 }
 
 
-def calculate_time(num_servers, inter_arrival_time, max_service, min_service):
-    lambdaa = 1/inter_arrival_time
+def datetime_to_features(dt):
+    hour = dt.hour
+    minute = dt.minute
+    second = dt.second
+    day_of_week = dt.weekday()
+    day_of_week_binary = [0] * 7
+    day_of_week_binary[day_of_week] = 1
+    return [hour, minute] + day_of_week_binary
+
+
+def arrival_interval_time():
+    now = datetime.datetime.now()
+    data = datetime_to_features(now)
+    model = joblib.load('finalized_model.pkl')
+    features = np.array([data])
+    predicted_arrivals = model.predict(features)
+    return predicted_arrivals[0]
+
+
+def calculate_time(num_servers=2, max_service=20, min_service=10):
+    lambdaa = 1/arrival_interval_time()
     mean_service_time = (min_service + max_service)/2
     mewing = 1/mean_service_time
     variance_s = pow(max_service-min_service, 2)/12
