@@ -43,3 +43,6 @@ class Queue(models.Model):
     current_pos = models.IntegerField(default=0)
     count = models.IntegerField(default=0)
     description = models.TextField()
+    num_servers = models.IntegerField(default=2, null=True, blank=True)
+    max_service = models.IntegerField(default=20, null=True, blank=True)
+    min_service = models.IntegerField(default=10, null=True, blank=True)

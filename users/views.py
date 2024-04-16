@@ -1,3 +1,4 @@
+import datetime
 from django.shortcuts import render
 from dj_rest_auth.registration.views import RegisterView
 from allauth.account import app_settings as allauth_account_settings
@@ -68,8 +69,9 @@ def add_to_queue(request, queue_id, user_id):
         user = User.objects.get(id=user_id)
     except:
         return Response(f"Something wrong with request", status=status.HTTP_400_BAD_REQUEST)
+    now = datetime.datetime.now()
     participant = Participant.objects.create(
-        user=user, position=queue.count+1, waiting_time=calculate_time()[1])
+        user=user, position=queue.count+1, waiting_time=calculate_time(now)[1])
     # check if empty
     if queue.count == 0:
         queue.current_pos = participant.position
@@ -116,6 +118,19 @@ class GetTime(APIView):
         # inter_arrival_time = request.data.get('inter_arrival_time')
         max_service = request.data.get('max_service')
         min_service = request.data.get('min_service')
-        average_l, mean_t = calculate_time(
-            num_servers, max_service, min_service)
+        now = datetime.datetime.now()
+        average_l, mean_t = calculate_time(now,
+                                           num_servers, max_service, min_service)
         return Response({"average_l": average_l, "mean_t": mean_t}, status=status.HTTP_200_OK)
+
+
+class GetWaitingTime(APIView):
+    def get(self, request, queue_id, **kwargs):
+        queue = Queue.objects.filter(id=queue_id).first()
+        if queue:
+            now = datetime.datetime.now()
+            data = {
+                "waiting_time": calculate_time(now, queue.num_servers, queue.max_service, queue.min_service)[1]
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        return Response("There is no such queue", status=status.HTTP_200_OK)
