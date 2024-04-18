@@ -99,6 +99,8 @@ class LoginUserSerializer(serializers.Serializer):
             raise serializers.ValidationError(msg, code='authorization')
 
         attrs['user'] = user
+        # phone_otp = PhoneOTP.objects.get(phone_number=phone_number)
+        # phone_otp.delete()
         return attrs
 
 

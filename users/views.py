@@ -1,3 +1,4 @@
+from .signals import create_and_send_otp
 import datetime
 from django.shortcuts import render
 from dj_rest_auth.registration.views import RegisterView
@@ -143,3 +144,25 @@ class GetQueue(APIView):
             serializer = QueueSerializer(queue)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RemoveFromQueue(APIView):
+    def post(self, request, participant_id, queue_id, **kwargs):
+        queue = Queue.objects.filter(org__org_id=queue_id).first()
+        participant = Participant.objects.filter(id=participant_id).first()
+        if (queue and participant) and (queue.participants.filter(id=participant.id).exists()):
+            queue.participants.remove(participant)
+            return Response("Participant was removed", status=status.HTTP_200_OK)
+        return Response("There is no such queue or participant", status=status.HTTP_200_OK)
+
+
+class CreateUser(APIView):
+    def post(self, request, **kwargs):
+        phone_number = request.data.get('phone_number')
+        try:
+            user = User.objects.create(
+                username=phone_number, phone_number=phone_number)
+            create_and_send_otp(phone_number, user)
+            return Response("Password was sent", status=status.HTTP_200_OK)
+        except:
+            return Response("Something wrong with phonenumber", status=status.HTTP_400_BAD_REQUEST)

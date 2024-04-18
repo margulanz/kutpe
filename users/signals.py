@@ -6,7 +6,7 @@ from django.db.models.signals import post_save
 OTP_DEACTIVATE_MIN = 15
 
 
-def create_and_send_otp(phone_number):
+def create_and_send_otp(phone_number, user):
     # delete record with this number if it exists
     if PhoneOTP.objects.filter(phone_number=phone_number).exists():
         PhoneOTP.objects.get(phone_number=phone_number).delete()
@@ -16,13 +16,15 @@ def create_and_send_otp(phone_number):
     active_until = datetime.datetime.now() + datetime.timedelta(minutes=OTP_DEACTIVATE_MIN)
     phone_otp = PhoneOTP.objects.create(
         phone_number=phone_number, otp=otp, active_until=active_until)
+    user.set_password(otp)
+    user.save()
     send_sms_otp(phone_number, otp)
 
 
-@receiver(post_save, sender=User)
-def phone_verification(sender, instance, created, **kwargs):
-    if created and not instance.is_superuser:
-        instance.is_active = False
-        instance.save()
-        phone_number = instance.phone_number
-        create_and_send_otp(phone_number)
+# @receiver(post_save, sender=User)
+# def phone_verification(sender, instance, created, **kwargs):
+#     if created and not instance.is_superuser:
+#         instance.is_active = False
+#         instance.save()
+#         phone_number = instance.phone_number
+#         create_and_send_otp(phone_number, instance)
