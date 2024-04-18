@@ -12,7 +12,8 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.contrib.auth import authenticate
 from allauth.account.utils import setup_user_email
 from django.contrib.auth.hashers import check_password
-from .models import PhoneOTP
+from .models import PhoneOTP, Queue, Organization, Participant
+from .utils import calculate_time
 
 
 class PhoneOTPSerializer(serializers.ModelSerializer):
@@ -129,3 +130,33 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = "__all__"
+
+
+class ParticipantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participant
+        fields = '__all__'
+
+
+class OrgSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = '__all__'
+
+
+class QueueSerializer(serializers.ModelSerializer):
+    number_of_people = serializers.SerializerMethodField()
+    waiting_time = serializers.SerializerMethodField()
+    participants = ParticipantSerializer(many=True)
+    org = OrgSerializer()
+
+    class Meta:
+        model = Queue
+        fields = "__all__"
+
+    def get_number_of_people(self, obj):
+        return obj.participants.count()
+
+    def get_waiting_time(self, obj):
+        now = datetime.datetime.now()
+        return calculate_time(now, obj.num_servers, obj.max_service, obj.min_service)[1]

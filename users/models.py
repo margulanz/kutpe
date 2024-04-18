@@ -31,6 +31,7 @@ class Organization(models.Model):
     name = models.CharField(max_length=25)
     email = models.CharField(max_length=25)
     phone_number = PhoneNumberField(unique=True, default=None, null=True)
+    org_id = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}"

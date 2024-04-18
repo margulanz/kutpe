@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .utils import find_nearest_banks, find_nearest_banks_by_location, calculate_time
 from .models import Queue, Participant, User
-from .serializers import PhoneOTPSerializer
+from .serializers import PhoneOTPSerializer, QueueSerializer
 # Create your views here.
 
 
@@ -134,3 +134,12 @@ class GetWaitingTime(APIView):
             }
             return Response(data, status=status.HTTP_200_OK)
         return Response("There is no such queue", status=status.HTTP_200_OK)
+
+
+class GetQueue(APIView):
+    def get(self, request, org_id, **kwargs):
+        queue = Queue.objects.filter(org__org_id=org_id).first()
+        if queue:
+            serializer = QueueSerializer(queue)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
