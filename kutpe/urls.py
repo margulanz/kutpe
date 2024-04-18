@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from users.views import CustomRegisterView, VerifyPhone, SendOTP, add_to_queue, process_current_pos, GetNearestBanks, GetNearestBanksByLocation, GetTime, GetWaitingTime, GetQueue, CreateUser
+from users.views import CustomRegisterView, VerifyPhone, SendOTP, add_to_queue, process_current_pos, GetNearestBanks, GetNearestBanksByLocation, GetTime, GetWaitingTime, GetQueue, CreateUser, RemoveFromQueue
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
@@ -38,5 +38,7 @@ urlpatterns = [
     path("get-time/", GetTime.as_view(), name='get_time'),
     path("queue/<int:queue_id>/waiting_time/",
          GetWaitingTime.as_view(), name='get_waiting_time'),
-    path("queue/<int:org_id>/", GetQueue.as_view(), name='get_queue')
+    path("queue/<int:org_id>/", GetQueue.as_view(), name='get_queue'),
+    path("queue/<int:queue_id>/remove/<int:participant_id>",
+         RemoveFromQueue.as_view(), name='remove_from_queue')
 ]
