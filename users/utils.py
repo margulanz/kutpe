@@ -9,8 +9,32 @@ from django.conf import settings
 import datetime
 import google.generativeai as genai
 import os
+import qrcode
+from io import BytesIO
+from base64 import b64encode
 
 API_KEY = "AIzaSyBO4vStpGCCBkxFDTiUy9zPOFdXkmK_cjc"
+
+
+def generate_qr_code(user_id):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+
+    qr.add_data(user_id)
+    qr.make(fit=True)
+
+    img = qr.make_image(fill="black", back_color="white")
+
+    img_bytes = BytesIO()
+    img.save(img_bytes)
+    img_bytes.seek(0)
+
+    img_data = b64encode(img_bytes.read()).decode("utf-8")
+    return f"data:image/png;base64,{img_data}"
 
 
 def generate_response():

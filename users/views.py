@@ -12,6 +12,7 @@ from .utils import (
     find_nearest_banks,
     find_nearest_banks_by_location,
     calculate_time,
+    generate_qr_code,
     generate_response,
 )
 from .models import Queue, Participant, User, Organization, WaitingTime
@@ -160,6 +161,14 @@ class GetTime(APIView):
         return Response(
             {"average_l": average_l, "mean_t": mean_t}, status=status.HTTP_200_OK
         )
+
+
+class GetQRCode(APIView):
+    def post(self, request, **kwargs):
+        user_id = request.data.get("id")
+
+        qr_code = generate_qr_code(user_id=user_id)
+        return Response(qr_code, status=status.HTTP_200_OK)
 
 
 class GetWaitingTime(APIView):

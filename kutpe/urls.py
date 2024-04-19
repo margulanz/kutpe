@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from users.views import (
     CustomRegisterView,
+    GetQRCode,
     VerifyPhone,
     SendOTP,
     add_to_queue,
@@ -80,4 +81,5 @@ urlpatterns = [
     path("queue/create/", CreateQueue.as_view(), name="create_queue"),
     path("queue/<int:org_id>/waiting_time_date/",
          GetWaitingTimeDay.as_view(), name="waiting_time_date")
+    path("qr/", GetQRCode.as_view(), name="get_qr"),
 ]
