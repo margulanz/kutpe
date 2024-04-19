@@ -12,8 +12,18 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.contrib.auth import authenticate
 from allauth.account.utils import setup_user_email
 from django.contrib.auth.hashers import check_password
+from dj_rest_auth.serializers import UserDetailsSerializer
 from .models import PhoneOTP, Queue, Organization, Participant
 from .utils import calculate_time
+
+
+class CustomUserDetailsSerializer(UserDetailsSerializer):
+    # is_superuser = serializers.IntegerField(
+    #     source='is_superuser', read_only=True)
+
+    class Meta(UserDetailsSerializer.Meta):
+        fields = ('id', 'username', 'email', 'first_name',
+                  'last_name', 'phone_number', 'is_superuser',)
 
 
 class PhoneOTPSerializer(serializers.ModelSerializer):
