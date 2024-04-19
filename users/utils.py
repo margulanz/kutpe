@@ -109,8 +109,9 @@ def datetime_to_features(dt):
 def arrival_interval_time(time):
     # now = datetime.datetime.now()
     data = datetime_to_features(time)
-    model = joblib.load('finalized_model.pkl')
+    model = joblib.load('backend/finalized_model.pkl')
     features = np.array([data])
+    print(features, flush=True)
     predicted_arrivals = model.predict(features)
     return predicted_arrivals[0]
 

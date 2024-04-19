@@ -9,8 +9,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .utils import find_nearest_banks, find_nearest_banks_by_location, calculate_time
-from .models import Queue, Participant, User
-from .serializers import PhoneOTPSerializer, QueueSerializer
+from .models import Queue, Participant, User, Organization
+from .serializers import PhoneOTPSerializer, QueueSerializer, UserSerializer
 # Create your views here.
 
 
@@ -64,9 +64,11 @@ class SendOTP(APIView):
 
 
 @api_view(('POST',))
-def add_to_queue(request, queue_id, user_id):
+def add_to_queue(request, org_id, user_id):
     try:
-        queue = Queue.objects.get(id=queue_id)
+        service_name = request.data.get('service_name')
+        queue = Queue.objects.get(
+            org__org_id=org_id, service_name=service_name)
         user = User.objects.get(id=user_id)
     except:
         return Response(f"Something wrong with request", status=status.HTTP_400_BAD_REQUEST)
@@ -83,9 +85,11 @@ def add_to_queue(request, queue_id, user_id):
 
 
 @api_view(('POST',))
-def process_current_pos(request, queue_id):
+def process_current_pos(request, org_id):
     try:
-        queue = Queue.objects.get(id=queue_id)
+        service_name = request.data.get('service_name')
+        queue = Queue.objects.get(
+            org__org_id=org_id, service_name=service_name)
         participant = Participant.objects.get(position=queue.current_pos)
     except:
         return Response(f"Something wrong with request", status=status.HTTP_400_BAD_REQUEST)
@@ -126,8 +130,10 @@ class GetTime(APIView):
 
 
 class GetWaitingTime(APIView):
-    def get(self, request, queue_id, **kwargs):
-        queue = Queue.objects.filter(id=queue_id).first()
+    def post(self, request, org_id, **kwargs):
+        service_name = request.data.get('service_name')
+        queue = Queue.objects.filter(
+            org__org_id=org_id, service_name=service_name).first()
         if queue:
             now = datetime.datetime.now()
             data = {
@@ -138,8 +144,10 @@ class GetWaitingTime(APIView):
 
 
 class GetQueue(APIView):
-    def get(self, request, org_id, **kwargs):
-        queue = Queue.objects.filter(org__org_id=org_id).first()
+    def post(self, request, org_id, **kwargs):
+        service_name = request.data.get('service_name')
+        queue = Queue.objects.filter(
+            org__org_id=org_id, service_name=service_name).first()
         if queue:
             serializer = QueueSerializer(queue)
 
@@ -147,11 +155,14 @@ class GetQueue(APIView):
 
 
 class RemoveFromQueue(APIView):
-    def post(self, request, participant_id, queue_id, **kwargs):
-        queue = Queue.objects.filter(org__org_id=queue_id).first()
-        participant = Participant.objects.filter(id=participant_id).first()
+    def post(self, request, user_id, org_id, **kwargs):
+        service_name = request.data.get('service_name')
+        queue = Queue.objects.filter(
+            org__org_id=org_id, service_name=service_name).first()
+        participant = Participant.objects.filter(user__id=user_id).first()
         if (queue and participant) and (queue.participants.filter(id=participant.id).exists()):
             queue.participants.remove(participant)
+            participant.delete()
             return Response("Participant was removed", status=status.HTTP_200_OK)
         return Response("There is no such queue or participant", status=status.HTTP_200_OK)
 
@@ -166,3 +177,23 @@ class CreateUser(APIView):
             return Response("Password was sent", status=status.HTTP_200_OK)
         except:
             return Response("Something wrong with phonenumber", status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetUser(APIView):
+    def get(self, request, user_id, **kwargs):
+        user = User.objects.filter(id=user_id).first()
+        if user:
+            serialzier = UserSerializer(user)
+            return Response(serialzier.data, status=status.HTTP_200_OK)
+        return Response("User not found", status=status.HTTP_404_NOT_FOUND)
+
+
+class CreateQueue(APIView):
+    def post(self, request, **kwargs):
+        org_id = request.data.get('org_id')
+        service_name = request.data.get('service_name')
+        org = Organization.objects.filter(org_id=org_id).first()
+        if not Queue.objects.filter(service_name=service_name).exists() and org:
+            queue = Queue.objects.create(org=org, service_name=service_name)
+            return Response("Queue created", status=status.HTTP_200_OK)
+        return Response("Improper data", status=status.HTTP_404_NOT_FOUND)

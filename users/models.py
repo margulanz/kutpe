@@ -34,16 +34,18 @@ class Organization(models.Model):
     org_id = models.CharField(max_length=25, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name} ({self.org_id})"
 
 
 class Queue(models.Model):
     org = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    service_name = models.CharField(
+        max_length=100, default="", null=True, unique=True)
     date = models.DateTimeField(auto_now=True)
     participants = models.ManyToManyField(Participant, null=True, blank=True)
     current_pos = models.IntegerField(default=0)
     count = models.IntegerField(default=0)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     num_servers = models.IntegerField(default=2, null=True, blank=True)
     max_service = models.IntegerField(default=20, null=True, blank=True)
     min_service = models.IntegerField(default=10, null=True, blank=True)

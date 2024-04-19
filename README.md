@@ -10,6 +10,10 @@
 6. `python manage.py migrate`
 7. `python manage.py createsuperuser`
 8. `python manage.py runserver`
+9. или через докер `docker compose up --build`
+10. в контейнере backend открыть терминал
+11. `cd backend`
+12. `python manage.py createsuperuser`
 
 # API
 

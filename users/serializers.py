@@ -172,3 +172,14 @@ class QueueSerializer(serializers.ModelSerializer):
     def get_waiting_time(self, obj):
         now = datetime.datetime.now()
         return calculate_time(now, obj.num_servers, obj.max_service, obj.min_service)[1]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "phone_number",
+            "is_superuser"
+        )
