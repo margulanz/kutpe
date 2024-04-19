@@ -14,6 +14,9 @@ from users.views import (
     GetQueue,
     CreateUser,
     RemoveFromQueue,
+    GetUser,
+    CreateQueue,
+    GetWaitingTimeDay
 )
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -35,7 +38,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("auth/", include("dj_rest_auth.urls")),
     path("registration/", CreateUser.as_view(), name="rest_register"),
-    path("verify-phone-number/", VerifyPhone.as_view(), name="verify_phone_number"),
+    path("verify-phone-number/", VerifyPhone.as_view(),
+         name="verify_phone_number"),
     path("send-otp/<int:id>/", SendOTP.as_view(), name="send_otp"),
     path(
         "add-to-queue/<int:org_id>/<int:user_id>", add_to_queue, name="add_to_queue"
@@ -56,7 +60,8 @@ urlpatterns = [
         schema_view.with_ui("swagger", cache_timeout=0),
         name="schema-swagger-ui",
     ),
-    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
+    path("redoc/", schema_view.with_ui("redoc",
+         cache_timeout=0), name="schema-redoc"),
     path("get-time/", GetTime.as_view(), name="get_time"),
     path(
         "queue/<int:org_id>/waiting_time/",
@@ -69,7 +74,9 @@ urlpatterns = [
         RemoveFromQueue.as_view(),
         name="remove_from_queue",
     ),
-    path("get-advice/", GetNearestBanksByLocation.as_view(), name="get_advice"),,
+    path("get-advice/", GetNearestBanksByLocation.as_view(), name="get_advice"),
     path("user/<int:user_id>/", GetUser.as_view(), name='get_user'),
-    path("queue/create/", CreateQueue.as_view(), name="create_queue")
+    path("queue/create/", CreateQueue.as_view(), name="create_queue"),
+    path("queue/<int:org_id>/waiting_time_date/",
+         GetWaitingTimeDay.as_view(), name="waiting_time_date")
 ]

@@ -11,5 +11,5 @@ RUN pip3 install gunicorn
 ADD ./requirements.txt /app/
 RUN pip3 install -r requirements.txt
 
-ADD ./ /app/backend
+ADD ./ /app/
 ADD ./docker /app/docker

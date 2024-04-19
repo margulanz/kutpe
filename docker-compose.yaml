@@ -1,34 +1,60 @@
 version: '3'
 services:
-  db:
-    image: postgres:13.0-alpine
-    restart: unless-stopped
-    volumes:
-        - postgres_data:/var/lib/postgresql/data/
-    environment:
-        POSTGRES_DB: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-    expose:
-        - 5432
-  backend:
-      restart: unless-stopped
-      build:
-          context: .
-          dockerfile: ./docker/Dockerfile
-      command: sh -c "python3 backend/manage.py migrate --noinput && python3 backend/manage.py collectstatic --noinput && python backend/manage.py runserver 0.0.0.0:8000"
-      volumes:
-            - static_volume:/app/backend/static
-      ports:
-          - "8000:8000"
-      environment:
-        DEBUG: "True"
-        DJANGO_DB: postgresql
-        POSTGRES_HOST: db
-        POSTGRES_NAME: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_PORT: 5432
+    db:
+        image: postgres:13.0-alpine
+        restart: unless-stopped
+        volumes:
+            - postgres_data:/var/lib/postgresql/data/
+        environment:
+            POSTGRES_DB: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+        expose:
+            - 5432
+    worker:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+        entrypoint: /app/docker/worker-entrypoint.sh
+        volumes:
+            - static_volume:/app/static
+        environment:
+            DEBUG: "True"
+            CELERY_BROKER_URL: "redis://redis:6379/0"
+            CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+            DJANGO_DB: postgresql
+            POSTGRES_HOST: db
+            POSTGRES_NAME: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_PORT: 5432
+        depends_on:
+            - backend
+            - redis
+    redis:
+        restart: unless-stopped
+        image: redis:7.0.5-alpine 
+        expose:
+            - 6379
+    backend:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+        command: sh -c "python3 manage.py migrate --noinput && python3 manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
+        volumes:
+                - static_volume:/app/static
+        ports:
+            - "8000:8000"
+        environment:
+            DEBUG: "True"
+            DJANGO_DB: postgresql
+            POSTGRES_HOST: db
+            POSTGRES_NAME: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_PORT: 5432
 
 
 

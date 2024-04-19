@@ -49,3 +49,9 @@ class Queue(models.Model):
     num_servers = models.IntegerField(default=2, null=True, blank=True)
     max_service = models.IntegerField(default=20, null=True, blank=True)
     min_service = models.IntegerField(default=10, null=True, blank=True)
+
+
+class WaitingTime(models.Model):
+    waiting_time = models.FloatField(default=0, null=True, blank=True)
+    date = models.DateTimeField(auto_now=True)
+    queue = models.ForeignKey(Queue, on_delete=models.CASCADE)

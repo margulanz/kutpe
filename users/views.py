@@ -14,7 +14,7 @@ from .utils import (
     calculate_time,
     generate_response,
 )
-from .models import Queue, Participant, User, Organization
+from .models import Queue, Participant, User, Organization, WaitingTime
 from .serializers import PhoneOTPSerializer, QueueSerializer, UserSerializer
 
 # Create your views here.
@@ -81,7 +81,8 @@ class SendOTP(APIView):
 def add_to_queue(request, org_id, user_id):
     try:
         service_name = request.data.get("service_name")
-        queue = Queue.objects.get(org__org_id=org_id, service_name=service_name)
+        queue = Queue.objects.get(
+            org__org_id=org_id, service_name=service_name)
         user = User.objects.get(id=user_id)
     except:
         return Response(
@@ -107,7 +108,8 @@ def add_to_queue(request, org_id, user_id):
 def process_current_pos(request, org_id):
     try:
         service_name = request.data.get("service_name")
-        queue = Queue.objects.get(org__org_id=org_id, service_name=service_name)
+        queue = Queue.objects.get(
+            org__org_id=org_id, service_name=service_name)
         participant = Participant.objects.get(position=queue.current_pos)
     except:
         return Response(
@@ -153,7 +155,8 @@ class GetTime(APIView):
         max_service = request.data.get("max_service")
         min_service = request.data.get("min_service")
         now = datetime.datetime.now()
-        average_l, mean_t = calculate_time(now, num_servers, max_service, min_service)
+        average_l, mean_t = calculate_time(
+            now, num_servers, max_service, min_service)
         return Response(
             {"average_l": average_l, "mean_t": mean_t}, status=status.HTTP_200_OK
         )
@@ -210,7 +213,8 @@ class CreateUser(APIView):
     def post(self, request, **kwargs):
         phone_number = request.data.get("phone_number")
         try:
-            user = User.objects.create(username=phone_number, phone_number=phone_number)
+            user = User.objects.create(
+                username=phone_number, phone_number=phone_number)
             create_and_send_otp(phone_number, user)
             return Response("Password was sent", status=status.HTTP_200_OK)
         except:
@@ -236,4 +240,21 @@ class CreateQueue(APIView):
         if not Queue.objects.filter(service_name=service_name).exists() and org:
             queue = Queue.objects.create(org=org, service_name=service_name)
             return Response("Queue created", status=status.HTTP_200_OK)
+        return Response("Improper data", status=status.HTTP_404_NOT_FOUND)
+
+
+class GetWaitingTimeDay(APIView):
+    def post(self, request, org_id, **kwargs):
+        service_name = request.data.get("service_name")
+        date = request.data.get("date")
+        try:
+            datetime.date.fromisoformat(date)
+        except ValueError:
+            return Response("Improper data", status=status.HTTP_404_NOT_FOUND)
+        queue = Queue.objects.filter(
+            org__org_id=org_id, service_name=service_name).first()
+        if queue:
+            waiting_times = WaitingTime.objects.filter(
+                queue=queue, date__date=date)
+            return Response(waiting_times.values(), status=status.HTTP_200_OK)
         return Response("Improper data", status=status.HTTP_404_NOT_FOUND)

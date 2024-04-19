@@ -1,3 +1,4 @@
+from math import factorial
 import random
 import string
 import requests
@@ -134,31 +135,33 @@ def datetime_to_features(dt):
 def arrival_interval_time(time):
     # now = datetime.datetime.now()
     data = datetime_to_features(time)
-    model = joblib.load("backend/finalized_model.pkl")
+    model = joblib.load("finalized_model.pkl")
     features = np.array([data])
-    print(features, flush=True)
     predicted_arrivals = model.predict(features)
     return predicted_arrivals[0]
 
 
 def calculate_time(time, num_servers=2, max_service=20, min_service=10):
     # now = datetime.datetime.now()
-    lambdaa = 1 / arrival_interval_time(time)
-    mean_service_time = (min_service + max_service) / 2
-    mewing = 1 / mean_service_time
-    variance_s = pow(max_service - min_service, 2) / 12
-    p = lambdaa / (num_servers * mewing)
-    C_s = variance_s / pow(mean_service_time, 2)
-    sum = 0
-    for i in range(num_servers - 1):
-        sum += pow(num_servers * p, i) / math.factorial(i)
-    sum += pow(num_servers * p, num_servers) / (math.factorial(num_servers) * (1 - p))
-    p_0 = 1 / sum
-    L_q = (
-        p_0
-        * pow(lambdaa / mewing, num_servers)
-        * p
-        / (math.factorial(num_servers) * pow(1 - p, 2))
-    )
-    W_q = L_q / lambdaa
-    return (L_q, W_q)
+    lambda_rate = 1/arrival_interval_time(time)
+    mu = 2 / (max_service + min_service)
+
+    # Calculate rho
+    rho = lambda_rate / (num_servers * mu)
+
+    # Calculate P0
+    P0_numerator = 1
+    P0_denominator = sum((num_servers * rho)**m / factorial(m)
+                         for m in range(num_servers))
+    P0_denominator += (num_servers * rho)**num_servers / \
+        (factorial(num_servers) * (1 - rho))
+    P0 = 1 / P0_denominator
+
+    # Calculate Lq
+    Lq = P0 * ((lambda_rate / mu)**num_servers * rho) / \
+        (factorial(num_servers) * (1 - rho)**2)
+
+    # Calculate Wq
+    Wq = Lq / lambda_rate
+
+    return None, Wq
