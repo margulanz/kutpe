@@ -254,7 +254,7 @@ class GetWaitingTimeDay(APIView):
         queue = Queue.objects.filter(
             org__org_id=org_id, service_name=service_name).first()
         if queue:
-            waiting_times = WaitingTime.objects.filter(
-                queue=queue, date__date=date)
+            waiting_times = WaitingTime.objects.filter(service_name=service_name,
+                                                       org_id=queue.org.org_id, date__date=date)
             return Response(waiting_times.values(), status=status.HTTP_200_OK)
         return Response("Improper data", status=status.HTTP_404_NOT_FOUND)

@@ -24,7 +24,7 @@ class ParticipantAdmin(admin.ModelAdmin):
 
 
 class WaitingTimeAdmin(admin.ModelAdmin):
-    list_display = ['queue', 'waiting_time', 'date']
+    list_display = ['org_id', 'service_name', 'waiting_time', 'date']
 
 
 admin.site.register(Participant, ParticipantAdmin)

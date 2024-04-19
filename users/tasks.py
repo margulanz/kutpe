@@ -11,4 +11,5 @@ def record_waiting_time():
         now = datetime.now()
         waiting_time = calculate_time(
             now, queue.num_servers, queue.max_service, queue.min_service)[1]
-        WaitingTime.objects.create(waiting_time=waiting_time, queue=queue)
+        WaitingTime.objects.create(waiting_time=waiting_time, service_name=queue.service_name,
+                                   org_id=queue.org.org_id)
