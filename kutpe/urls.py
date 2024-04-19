@@ -12,6 +12,8 @@ from users.views import (
     GetNearestBanksByLocation,
     GetWaitingTime,
     GetQueue,
+    GetUser,
+    CreateQueue,
     CreateUser,
     RemoveFromQueue,
     GetUser,
@@ -41,9 +43,8 @@ urlpatterns = [
     path("verify-phone-number/", VerifyPhone.as_view(),
          name="verify_phone_number"),
     path("send-otp/<int:id>/", SendOTP.as_view(), name="send_otp"),
-    path(
-        "add-to-queue/<int:org_id>/<int:user_id>", add_to_queue, name="add_to_queue"
-    ),
+    path("add-to-queue/<int:org_id>/<int:user_id>",
+         add_to_queue, name="add_to_queue"),
     path(
         "process-current-pos/<int:org_id>",
         process_current_pos,
