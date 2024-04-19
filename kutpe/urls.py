@@ -12,6 +12,8 @@ from users.views import (
     GetNearestBanksByLocation,
     GetWaitingTime,
     GetQueue,
+    GetUser,
+    CreateQueue,
     CreateUser,
     RemoveFromQueue,
 )
@@ -37,9 +39,7 @@ urlpatterns = [
     path("registration/", CreateUser.as_view(), name="rest_register"),
     path("verify-phone-number/", VerifyPhone.as_view(), name="verify_phone_number"),
     path("send-otp/<int:id>/", SendOTP.as_view(), name="send_otp"),
-    path(
-        "add-to-queue/<int:org_id>/<int:user_id>", add_to_queue, name="add_to_queue"
-    ),
+    path("add-to-queue/<int:org_id>/<int:user_id>", add_to_queue, name="add_to_queue"),
     path(
         "process-current-pos/<int:org_id>",
         process_current_pos,
@@ -69,7 +69,7 @@ urlpatterns = [
         RemoveFromQueue.as_view(),
         name="remove_from_queue",
     ),
-    path("get-advice/", GetNearestBanksByLocation.as_view(), name="get_advice"),,
-    path("user/<int:user_id>/", GetUser.as_view(), name='get_user'),
-    path("queue/create/", CreateQueue.as_view(), name="create_queue")
+    path("get-advice/", GetNearestBanksByLocation.as_view(), name="get_advice"),
+    path("user/<int:user_id>/", GetUser.as_view(), name="get_user"),
+    path("queue/create/", CreateQueue.as_view(), name="create_queue"),
 ]
