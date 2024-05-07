@@ -1,3 +1,4 @@
+from rest_framework.authtoken.models import Token
 from rest_framework import serializers
 from .models import User
 
@@ -183,3 +184,14 @@ class UserSerializer(serializers.ModelSerializer):
             "phone_number",
             "is_superuser"
         )
+
+
+class TokenSerializer(serializers.ModelSerializer):
+    is_superuser = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Token
+        fields = ('key', 'user', 'is_superuser')
+
+    def get_is_superuser(self, obj):
+        return obj.user.is_superuser

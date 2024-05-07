@@ -19,7 +19,8 @@ from users.views import (
     RemoveFromQueue,
     GetUser,
     CreateQueue,
-    GetWaitingTimeDay
+    GetWaitingTimeDay,
+    GetUserId
 )
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -37,9 +38,11 @@ schema_view = get_schema_view(
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("auth/", include("dj_rest_auth.urls")),
+    path("auth/login/", GetUserId.as_view(), name='login'),
+    # path("auth/", include("dj_rest_auth.urls")),
     path("registration/", CreateUser.as_view(), name="rest_register"),
     path("verify-phone-number/", VerifyPhone.as_view(),
          name="verify_phone_number"),
@@ -80,6 +83,6 @@ urlpatterns = [
     path("user/<int:user_id>/", GetUser.as_view(), name='get_user'),
     path("queue/create/", CreateQueue.as_view(), name="create_queue"),
     path("queue/<int:org_id>/waiting_time_date/",
-         GetWaitingTimeDay.as_view(), name="waiting_time_date")
+         GetWaitingTimeDay.as_view(), name="waiting_time_date"),
     path("qr/", GetQRCode.as_view(), name="get_qr"),
 ]

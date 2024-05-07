@@ -26,16 +26,17 @@ SECRET_KEY = "django-insecure-)723+(3z50crgw94-$r#n689n)+kygwp&*qj056ikzq2o8omc=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ["https://c61b-185-48-148-185.ngrok-free.app"]
 
 CELERY_BROKER_URL = os.environ.get("BROKER_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = os.environ.get(
     "RESULT_BACKEND", "redis://localhost:6379/0")
 CELERY_BEAT_SCHEDULE = {
-    'record-waiting-time': {
-        'task': 'users.tasks.record_waiting_time',
-        'schedule': 60
-    },
+    # 'record-waiting-time': {
+    #     'task': 'users.tasks.record_waiting_time',
+    #     'schedule': 60
+    # },
 }
 # Application definition
 
@@ -155,6 +156,7 @@ REST_AUTH = {
     "REGISTER_SERIALIZER": "users.serializers.CustomRegisterSerializer",
     "LOGIN_SERIALIZER": "users.serializers.LoginUserSerializer",
     "USER_DETAILS_SERIALIZER": "users.serializers.CustomUserDetailsSerializer",
+    'TOKEN_SERIALIZER': 'users.serializers.TokenSerializer',
 }
 
 

@@ -53,7 +53,7 @@ class Queue(models.Model):
 
 class WaitingTime(models.Model):
     waiting_time = models.FloatField(default=0, null=True, blank=True)
-    date = models.DateTimeField(auto_now=True)
+    date = models.DateTimeField()
     service_name = models.CharField(
         max_length=100, default="", null=True)
     org_id = models.CharField(max_length=100, null=True, blank=True)

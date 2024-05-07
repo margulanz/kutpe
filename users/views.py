@@ -267,3 +267,10 @@ class GetWaitingTimeDay(APIView):
                                                        org_id=queue.org.org_id, date__date=date)
             return Response(waiting_times.values(), status=status.HTTP_200_OK)
         return Response("Improper data", status=status.HTTP_404_NOT_FOUND)
+
+
+class GetUserId(APIView):
+    def post(self, request, **kwargs):
+        phone_number = request.data.get("phone_number")
+        user = User.objects.get(phone_number=phone_number)
+        return Response(user.id, status=status.HTTP_200_OK)
